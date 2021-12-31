@@ -1,7 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
-local DataStoreService = game:GetService("DataStoreService")
 
 local ProfileService = require(script.Parent:WaitForChild("ProfileService"))
 
@@ -31,21 +30,20 @@ Players.PlayerAdded:Connect(function(player)
 		"ForceLoad"
 	)
 
-	if profile then
-		profile:ListenToRelease(function()
-			Profiles[player] = nil
-			player:Kick()
-		end)
-
-		if player:IsDescendantOf(Players) then
-			Profiles[player] = profile
-			task.wait(0.5)
-			ReplicatedStorage:WaitForChild("Remotes").LocalEvents.MoneyChange:FireClient(player, profile.Data.money, profile.Data.roMoney)
-		else
-			profile:Release()
-		end
-	else
+	if not profile then
 		player:Kick("Your data failed to load, please rejoin.\n\nIf this happens repeatedly, please contact a developer.")
+	end
+	profile:ListenToRelease(function()
+		Profiles[player] = nil
+		player:Kick()
+	end)
+
+	if player:IsDescendantOf(Players) then
+		Profiles[player] = profile
+		task.wait(0.5)
+		ReplicatedStorage:WaitForChild("Remotes").LocalEvents.MoneyChange:FireClient(player, profile.Data.money, profile.Data.roMoney)
+	else
+		profile:Release()
 	end
 end)
 
@@ -80,6 +78,8 @@ function DataService.GetProfile(player)
 	local profile = Profiles[player]
 	if profile then
 		return profile
+	else
+		player:Kick("Your data failed to load, please rejoin.\n\nIf this happens repeatedly, please contact a developer.")
 	end
 end
 

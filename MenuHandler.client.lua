@@ -8,6 +8,9 @@ local TweenService = game:GetService("TweenService")
 -- // VARIABLES \\ --
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Modules = ReplicatedStorage:WaitForChild("Modules")
+
+local CustomEnums = require(Modules.CustomEnums)
 
 local GUI = script.Parent
 local Buttons = GUI.ButtonsFrame
@@ -107,7 +110,7 @@ local function savePlotData(closeType)
         EditPlotFrame.NameBox.Text = name
     elseif name ~= EditingPlot.name then
         local success, data = Remotes.PlotSelection.EditPlot:InvokeServer(EditingPlot.id, {name=name})
-        if success == true then
+        if success == CustomEnums.PlotSelection.Success then
             loadPlots()
             EditingPlot = nil
         end

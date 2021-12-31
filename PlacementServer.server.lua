@@ -5,6 +5,7 @@ local Modules = ReplicatedStorage:WaitForChild("Modules")
 
 local PlotService = require(Modules.PlotService)
 local DataService = require(Modules.DataService)
+local CustomEnums = require(Modules.CustomEnums)
 
 local Items = ReplicatedStorage:WaitForChild("Items")
 
@@ -32,8 +33,8 @@ Remotes.BuildingSystem.PlaceObject.OnServerInvoke = function(player, object, loc
 	local clonedItem
 
 	if item and plot ~= nil then
-		if data.Data.money < item.Settings.Price.Value then return "notEnoughMoney" end
-		if not isInsidePart(location.Position, plot.PlotCanvas) then return "notWithinCanvas" end
+		if data.Data.money < item.Settings.Price.Value then return CustomEnums.BuildSystem.InsufficientMoney end
+		if not isInsidePart(location.Position, plot.PlotCanvas) then return CustomEnums.BuildSystem.OutsideCanvas end
 
 		clonedItem = item:Clone()
 		clonedItem:SetPrimaryPartCFrame(location)
@@ -49,8 +50,8 @@ Remotes.BuildingSystem.PlaceObject.OnServerInvoke = function(player, object, loc
 		local itemData = DataService.SaveItem(player, clonedItem, plot, plotID)
 		clonedItem:SetAttribute("ID", itemData.ID)
 
-		return true
+		return CustomEnums.BuildSystem.Success
 	end
-	return false
+	return CustomEnums.BuildSystem.Error
 
 end

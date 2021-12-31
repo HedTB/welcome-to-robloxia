@@ -20,7 +20,7 @@ function PlotService.GetPlot(plr)
 end
 
 function PlotService.LeavePlot(plr)
-	local plot = PlotService:GetPlot(plr)
+	local plot = PlotService.GetPlot(plr)
 	if plot then
 		plot:SetAttribute("Occupant", "None")
 	end
@@ -34,7 +34,7 @@ function PlotService.OwnPlot(plr, plot, saveName)
 	if not plot:IsA("BasePart") then return nil end
 	if plot:GetAttribute("Occupant") ~= "None" then return false end
 	
-	local loadedPlot = DataService:LoadPlot(plr, plot, saveName)
+	local loadedPlot = DataService.LoadPlot(plr, plot, saveName)
 	plot:SetAttribute("Occupant", plr.Name)
 
 	local cf = plot.PlotSpawn.CFrame

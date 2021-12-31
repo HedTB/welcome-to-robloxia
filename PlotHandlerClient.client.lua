@@ -19,6 +19,7 @@ local orbiting = false
 local PlotService = require(Modules.PlotService)
 local TweenModule = require(Modules.TweenModule)
 local UIService = require(Modules.UIService)
+local CustomEnums = require(Modules.CustomEnums)
 
 -- GUI
 local PlotSelect = player.PlayerGui:WaitForChild("PlotSelectorGUI", 10)
@@ -81,17 +82,17 @@ local function startPlotSelect(plotName)
 		connections[#connections+1] = Select.MouseButton1Click:Connect(function()
 			local result = Remotes.PlotSelection.RequestPlot:InvokeServer(plotsTable[index], plotName)
 
-			if result == "notValidPlot" then
+			if result == CustomEnums.PlotSelection.Invalid then
 				UIService:Error("Invalid plot")
 				choosePlot()
-			elseif result == "unavailablePlot" then
+			elseif result == CustomEnums.PlotSelection.Unavailable then
 				UIService:Error("Plot is owned by someone else")
 				choosePlot()
 			end
 
 			camera.CameraType = Enum.CameraType.Custom
 			SelectedPlot.Value = nil
-			CutSceneEvents.CancelCutsceneRequestEvent:FireServer(player)
+			-- CutSceneEvents.CancelCutsceneRequestEvent:FireServer(player)
 
 			for _, connection in pairs(connections) do
 				if connection then connection:Disconnect() end

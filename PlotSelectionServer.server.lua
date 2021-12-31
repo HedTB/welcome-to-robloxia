@@ -6,6 +6,7 @@ local Modules = ReplicatedStorage:WaitForChild("Modules")
 
 local PlotService = require(Modules.PlotService)
 local DataService = require(Modules.DataService)
+local CustomEnums = require(Modules.CustomEnums)
 
 PlotService.InitializePlots()
 
@@ -13,12 +14,12 @@ Remotes.PlotSelection.RequestPlot.OnServerInvoke = function(player, plot, saveNa
 	local success, plot = PlotService.OwnPlot(player, plot, saveName)
 
 	if success == nil then
-		return "notValidPlot"
+		return CustomEnums.PlotSelection.Invalid
 	elseif success == false then
-		return "unavailablePlot"
+		return CustomEnums.PlotSelection.Unavailable
     else
 		player:SetAttribute("LoadedPlot", plot.id)
-        return true
+        return CustomEnums.PlotSelection.Success
 	end
 end
 
@@ -39,7 +40,7 @@ Remotes.PlotSelection.CreatePlot.OnServerInvoke = function(player, name: string)
 	local plots = profile.Data["plots"]
 	if not plots then return end
 	
-	if #plots == 7 then return "maxPlotsReached" end
+	if #plots == 7 then return CustomEnums.PlotSelection.MaxPlots end
 	return DataService.CreatePlot(player, name)
 end
 
@@ -51,12 +52,11 @@ Remotes.PlotSelection.EditPlot.OnServerInvoke = function(player, plotID: string,
 		return
 	end
 
-	if data["name"] == "" then
-		data["name"] = "Untitled"
+	if data["name"] == "" then data["name"] = "Untitled"
 	elseif string.len(data["name"]) > 20 or string.len(data["name"]) < 3 then
 		return
 	end
 	profile.Data["plots"][plotID].name = data["name"]
 
-	return true, profile.Data["plots"][plotID]
+	return CustomEnums.PlotSelection.Success, profile.Data["plots"][plotID]
 end
