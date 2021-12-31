@@ -27,8 +27,8 @@ end
 Remotes.BuildingSystem.PlaceObject.OnServerInvoke = function(player, object, location)
 
 	local item = findItem(object)
-    local plot = PlotService:GetPlot(player)
-	local data = DataService:GetProfile(player)
+    local plot = PlotService.GetPlot(player)
+	local data = DataService.GetProfile(player)
 	local clonedItem
 
 	if item and plot ~= nil then
@@ -46,7 +46,7 @@ Remotes.BuildingSystem.PlaceObject.OnServerInvoke = function(player, object, loc
 		clonedItem.Parent = plot.PlacedItems
 
 		local plotID = player:GetAttribute("LoadedPlot")
-		local itemData = DataService:SaveItem(player, clonedItem, plot, plotID)
+		local itemData = DataService.SaveItem(player, clonedItem, plot, plotID)
 		clonedItem:SetAttribute("ID", itemData.ID)
 
 		return true

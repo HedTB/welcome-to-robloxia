@@ -76,14 +76,14 @@ end
 
 local DataService = {}
 
-function DataService:GetProfile(player)
+function DataService.GetProfile(player)
 	local profile = Profiles[player]
 	if profile then
 		return profile
 	end
 end
 
-function DataService:GetPlot(player, plotName: string)
+function DataService.GetPlot(player, plotName: string)
 	local profile = Profiles[player]
 	local plots = profile.Data["plots"]
 	if not plots then
@@ -99,14 +99,14 @@ function DataService:GetPlot(player, plotName: string)
 	return nil
 end
 
-function DataService:LoadPlot(player, selectedPlot: BasePart, plotName: string)
+function DataService.LoadPlot(player, selectedPlot: BasePart, plotName: string)
 	local profile = Profiles[player]
 	local plots = profile.Data["plots"]
 	if not plots then
 		profile.Data["plots"] = {}
 	end
 	
-	local plotData = DataService:GetPlot(player, plotName)
+	local plotData = DataService.GetPlot(player, plotName)
     if not plotData then
 		local plotID = HttpService:GenerateGUID(false)
         profile.Data["plots"][plotID] = {
@@ -139,7 +139,7 @@ function DataService:LoadPlot(player, selectedPlot: BasePart, plotName: string)
 	return plotData
 end
 
-function DataService:CreatePlot(player, name: string)
+function DataService.CreatePlot(player, name: string)
 	local profile = Profiles[player]
 	if not profile.Data["plots"] then
 		profile.Data["plots"] = {}
@@ -156,7 +156,7 @@ function DataService:CreatePlot(player, name: string)
 	return profile.Data["plots"][plotID]
 end
 
-function DataService:SaveItem(player, item: Model, selectedPlot: BasePart, plotID: string)
+function DataService.SaveItem(player, item: Model, selectedPlot: BasePart, plotID: string)
 	local profile = Profiles[player]
 	if not profile.Data["plots"] then
 		profile.Data["plots"] = {}
@@ -183,7 +183,7 @@ function DataService:SaveItem(player, item: Model, selectedPlot: BasePart, plotI
 	return itemData
 end
 
-function DataService:GetSavedPlots(player)
+function DataService.GetSavedPlots(player)
 	local profile = Profiles[player]
 	if not profile.Data["plots"] then
 		profile.Data["plots"] = {}

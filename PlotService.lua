@@ -4,13 +4,13 @@ local Plots = workspace:WaitForChild("Plots")
 
 local PlotService = {}
 
-function PlotService:InitializePlots()
+function PlotService.InitializePlots()
 	for _, plot in pairs(Plots:GetChildren()) do
 		plot:SetAttribute("Occupant", "None")
 	end
 end
 
-function PlotService:GetPlot(plr)
+function PlotService.GetPlot(plr)
 	for _, plot in pairs(Plots:GetChildren()) do
 		if plot:GetAttribute("Occupant") == plr.Name then
 			return plot
@@ -19,14 +19,14 @@ function PlotService:GetPlot(plr)
 	return nil
 end
 
-function PlotService:LeavePlot(plr)
+function PlotService.LeavePlot(plr)
 	local plot = PlotService:GetPlot(plr)
 	if plot then
 		plot:SetAttribute("Occupant", "None")
 	end
 end
 
-function PlotService:OwnPlot(plr, plot, saveName)
+function PlotService.OwnPlot(plr, plot, saveName)
 	local DataService = require(ReplicatedStorage:WaitForChild("Modules").DataService)
 	local char = plr.Character or plr.CharacterAdded:Wait()
 	
@@ -43,7 +43,7 @@ function PlotService:OwnPlot(plr, plot, saveName)
 	return true, loadedPlot
 end
 
-function PlotService:GetAvailablePlots()
+function PlotService.GetAvailablePlots()
 	local availablePlots = {}
 
 	for i, plot in pairs(Plots:GetChildren()) do
@@ -56,15 +56,15 @@ function PlotService:GetAvailablePlots()
 end
 
 
-function PlotService:EditPlot(player, plotName: string, instruction: string, value)
+function PlotService.EditPlot(player, plotName: string, instruction: string, value)
 	local DataService = require(ReplicatedStorage:WaitForChild("Modules").DataService)
-	local profile = DataService:GetProfile(player)
+	local profile = DataService.GetProfile(player)
 	local plots = profile.Data["plots"]
 	if not plots then
 		profile.Data["plots"] = {}
 	end
 
-	local plotData = DataService:GetPlot(player, plotName)
+	local plotData = DataService.GetPlot(player, plotName)
 	if not plotData then
 		local plotID = HttpService:GenerateGUID(false)
         profile.Data["plots"][plotID] = {

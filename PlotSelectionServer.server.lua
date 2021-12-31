@@ -7,10 +7,10 @@ local Modules = ReplicatedStorage:WaitForChild("Modules")
 local PlotService = require(Modules.PlotService)
 local DataService = require(Modules.DataService)
 
-PlotService:InitializePlots()
+PlotService.InitializePlots()
 
 Remotes.PlotSelection.RequestPlot.OnServerInvoke = function(player, plot, saveName)
-	local success, plot = PlotService:OwnPlot(player, plot, saveName)
+	local success, plot = PlotService.OwnPlot(player, plot, saveName)
 
 	if success == nil then
 		return "notValidPlot"
@@ -23,28 +23,28 @@ Remotes.PlotSelection.RequestPlot.OnServerInvoke = function(player, plot, saveNa
 end
 
 Players.PlayerRemoving:Connect(function(player)
-	PlotService:LeavePlot(player)
+	PlotService.LeavePlot(player)
 end)
 
 Remotes.PlotSelection.LeavePlot.OnServerEvent:Connect(function(player)
-	PlotService:LeavePlot(player)
+	PlotService.LeavePlot(player)
 end)
 
 Remotes.PlotSelection.GetPlots.OnServerInvoke = function(player)
-	return DataService:GetSavedPlots(player)
+	return DataService.GetSavedPlots(player)
 end
 
 Remotes.PlotSelection.CreatePlot.OnServerInvoke = function(player, name: string)
-	local profile = DataService:GetProfile(player)
+	local profile = DataService.GetProfile(player)
 	local plots = profile.Data["plots"]
 	if not plots then return end
 	
 	if #plots == 7 then return "maxPlotsReached" end
-	return DataService:CreatePlot(player, name)
+	return DataService.CreatePlot(player, name)
 end
 
 Remotes.PlotSelection.EditPlot.OnServerInvoke = function(player, plotID: string, data: table)
-	local profile = DataService:GetProfile(player)
+	local profile = DataService.GetProfile(player)
 	local plots = profile.Data["plots"]
 	if not plots then
 		profile.Data["plots"] = {}
