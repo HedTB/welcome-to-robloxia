@@ -14,7 +14,7 @@ local player = Players.LocalPlayer
 -- // MODULEs \\ --
 
 local TopbarPlus = require(Modules.Icon)
-local PlotService = require(Modules.PlotService)
+-- local PlotService = require(Modules.PlotService)
 local UIService = require(Modules.UIService)
 local InteractionService = require(Modules.InteractionService)
 
@@ -93,6 +93,7 @@ task.spawn(function()
 	end
 end)
 
+--[[
 ViewPlotButton:bindEvent("selected", function()
 	local plot = PlotService.GetPlot(player)
 	if plot ~= nil then
@@ -132,6 +133,4 @@ BuildModeButton:bindEvent("deselected", function()
 	task.wait(1)
 	BuildModeButton:unlock()
 end)
-
-task.wait(1)
--- InteractionService:OpenInteraction("Test")
+]]

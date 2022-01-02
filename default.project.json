@@ -37,6 +37,11 @@
         "$className": "Folder",
         "$path": "Packages",
         "$ignoreUnknownInstances": true
+      },
+      "Controllers": {
+        "$className": "Folder",
+        "$path": "src/ReplicatedStorage/Controllers",
+        "$ignoreUnknownInstances": true
       }
     },
 

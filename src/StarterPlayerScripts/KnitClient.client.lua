@@ -6,7 +6,8 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 Knit.MainModules = ReplicatedStorage.Modules
 Knit.ClientModules = StarterPlayer.StarterPlayerScripts.Modules
 
-Knit.AddControllersDeep(script.Parent:WaitForChild("Services"))
+Knit.AddControllersDeep(ReplicatedStorage:WaitForChild("Controllers"))
+
 Knit.Start():andThen(function()
     print("Knit started.")
 end):catch(warn)

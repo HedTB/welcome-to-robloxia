@@ -9,14 +9,14 @@ local Lighting = game:GetService("Lighting")
 -- IMPORTANT
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local CutSceneEvents = ReplicatedStorage:WaitForChild("CutscenesEvents")
 
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local orbiting = false
 
 -- MODULES
-local PlotService = require(Modules.PlotService)
+local Knit = require(ReplicatedStorage.Packages.Knit)
+
 local TweenModule = require(Modules.TweenModule)
 local UIService = require(Modules.UIService)
 local CustomEnums = require(Modules.CustomEnums)
@@ -51,8 +51,11 @@ end
 local function startPlotSelect(plotName)
 	TweenService:Create(Lighting.MenuBlur, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {Size = 0}):Play()
 
+	local plotService = Knit.GetService("PlotService")
 	local connections = {}
-	local plotsTable = PlotService:GetAvailablePlots()
+	local plotsTable = plotService.Client:GetAvailablePlots():doneReturn(function(...)
+		return ...
+	end)
 	local index = 1
 
 	Frame.Select.Text = "Select Plot"

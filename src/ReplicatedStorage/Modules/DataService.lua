@@ -1,8 +1,13 @@
+-- // SERVICES \\  --
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
 local ProfileService = require(script.Parent:WaitForChild("ProfileService"))
+local CustomEnums = require(script.Parent:WaitForChild("CustomEnums"))
+
+-- // VARIABLES \\ --
 
 local PlotID = HttpService:GenerateGUID(false)
 local ProfileStore = ProfileService.GetProfileStore(
@@ -23,37 +28,9 @@ local ProfileStore = ProfileService.GetProfileStore(
 	}
 )
 
-local Profiles = {}
+local Knit = require(game:GetService("ReplicatedStorage").Packages.Knit)
 
-Players.PlayerAdded:Connect(function(player)
-	local profile = ProfileStore:LoadProfileAsync(
-		"UserData_" .. player.UserId,
-		"ForceLoad"
-	)
-
-	if not profile then
-		player:Kick("Your data failed to load, please rejoin.\n\nIf this happens repeatedly, please contact a developer.")
-	end
-	profile:ListenToRelease(function()
-		Profiles[player] = nil
-		player:Kick()
-	end)
-
-	if player:IsDescendantOf(Players) then
-		Profiles[player] = profile
-		task.wait(0.5)
-		ReplicatedStorage:WaitForChild("Remotes").LocalEvents.MoneyChange:FireClient(player, profile.Data.money, profile.Data.roMoney)
-	else
-		profile:Release()
-	end
-end)
-
-Players.PlayerRemoving:Connect(function(player)
-	local profile = Profiles[player]
-	if profile then
-		profile:Release()
-	end
-end)
+-- // FUNCTIONS \\ --
 
 local function len(t)
 	local n = 0
@@ -81,10 +58,16 @@ local function getPlotWorth(plotData: table)
 	return worth
 end
 
-local DataService = {}
+-- // SERVICE \\ --
 
-function DataService.GetProfile(player)
-	local profile = Profiles[player]
+local DataService = Knit.CreateService {
+	Name = "DataService",
+	Client = {},
+	_Profiles = {},
+}
+
+function DataService:GetProfile(player)
+	local profile = self._Profiles[player]
 	if profile then
 		return profile
 	else
@@ -92,8 +75,8 @@ function DataService.GetProfile(player)
 	end
 end
 
-function DataService.GetPlot(player, plotName: string)
-	local profile = Profiles[player]
+function DataService:GetPlot(player, plotName: string)
+	local profile = self._Profiles[player]
 	local plots = profile.Data["plots"]
 	if not plots then
 		profile.Data["plots"] = {}
@@ -108,8 +91,8 @@ function DataService.GetPlot(player, plotName: string)
 	return nil
 end
 
-function DataService.LoadPlot(player, selectedPlot: BasePart, plotName: string)
-	local profile = Profiles[player]
+function DataService:LoadPlot(player, selectedPlot: BasePart, plotName: string)
+	local profile = self._Profiles[player]
 	local plots = profile.Data["plots"]
 	if not plots then
 		profile.Data["plots"] = {}
@@ -153,8 +136,8 @@ function DataService.LoadPlot(player, selectedPlot: BasePart, plotName: string)
 	return plotData
 end
 
-function DataService.CreatePlot(player, name: string)
-	local profile = Profiles[player]
+function DataService:CreatePlot(player, name: string)
+	local profile = self._Profiles[player]
 	if not profile.Data["plots"] then
 		profile.Data["plots"] = {}
 	end
@@ -171,8 +154,8 @@ function DataService.CreatePlot(player, name: string)
 	return profile.Data["plots"][plotID]
 end
 
-function DataService.SaveItem(player, item: Model, selectedPlot: BasePart, plotID: string)
-	local profile = Profiles[player]
+function DataService:SaveItem(player, item: Model, selectedPlot: BasePart, plotID: string)
+	local profile = self._Profiles[player]
 	if not profile.Data["plots"] then
 		profile.Data["plots"] = {}
 	end
@@ -201,8 +184,29 @@ function DataService.SaveItem(player, item: Model, selectedPlot: BasePart, plotI
 	return itemData
 end
 
-function DataService.GetSavedPlots(player)
-	local profile = Profiles[player]
+function DataService:EditPlot(player, plotID: string, data: table)
+	local profile = DataService.GetProfile(player)
+	local plots = profile.Data["plots"]
+	if not plots then
+		profile.Data["plots"] = {}
+		return
+	end
+
+	if data["name"] == "" then data["name"] = "Untitled"
+	elseif string.len(data["name"]) > 20 or string.len(data["name"]) < 3 then
+		return
+	end
+	profile.Data["plots"][plotID].name = data["name"]
+
+	return CustomEnums.PlotSelection.Success, profile.Data["plots"][plotID]
+end
+
+function DataService.Client:EditPlot(player, plotID: string, data: table)
+	return self.Server:EditPlot(player, plotID, data)
+end
+
+function DataService:GetSavedPlots(player)
+	local profile = self._Profiles[player]
 	if not profile.Data["plots"] then
 		profile.Data["plots"] = {}
 	end
@@ -214,7 +218,46 @@ function DataService.GetSavedPlots(player)
 		plot.plotWorth = getPlotWorth(plot)
 	end
 
-	return profile.Data["plots"]
+	local plots = profile.Data["plots"]
+	return plots
+end
+
+function DataService.Client:GetSavedPlots(player)
+	return self.Server:GetSavedPlots(player)
+end
+
+
+function DataService:KnitStart()
+	print("DataService Started")
+end
+
+function DataService:KnitInit()
+	Players.PlayerAdded:Connect(function(player)
+		local profile = ProfileStore:LoadProfileAsync(
+			"UserData_" .. player.UserId,
+			"ForceLoad"
+		)
+		if not profile then
+			player:Kick("Your data failed to load, please rejoin.\n\nIf this happens repeatedly, please contact a developer.")
+		end
+		profile:ListenToRelease(function()
+			self._Profiles[player] = nil
+			player:Kick()
+		end)
+	
+		if player:IsDescendantOf(Players) then
+			self._Profiles[player] = profile
+		else
+			profile:Release()
+		end
+	end)
+	
+	Players.PlayerRemoving:Connect(function(player)
+		local profile = self._Profiles[player]
+		if profile then
+			profile:Release()
+		end
+	end)
 end
 
 return DataService

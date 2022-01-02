@@ -11,6 +11,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 
 local CustomEnums = require(Modules.CustomEnums)
+local Knit = require(ReplicatedStorage.Packages.Knit)
 
 local GUI = script.Parent
 local Buttons = GUI.ButtonsFrame
@@ -23,7 +24,6 @@ local Logo = GUI.MainFrame.Logo
 local SaveSample = PlotSavesFrame.SaveSample
 
 local player = Players.LocalPlayer
-local playerGui = player.PlayerGui
 local mouse = player:GetMouse()
 
 local EditingPlot = nil
@@ -41,59 +41,63 @@ local function len(t)
 end
 
 local function loadPlots()
-    local plots = Remotes.PlotSelection.GetPlots:InvokeServer()
-    local usedIDs = {}
+    local dataService = Knit.GetService("DataService")
 
-    for _, frame in pairs(SavesFrame:GetChildren()) do
-        if frame:IsA("ImageLabel") then frame:Destroy() end
-    end
-    if len(plots) == 0 then
-        local plot = Remotes.PlotSelection.CreatePlot:InvokeServer("My Beautiful Home")
-        loadPlots()
-    end
-    for _, plot in pairs(plots) do
-        if usedIDs[plot.id] then continue end
+    dataService:GetSavedPlots():andThen(function(plotsTable: table)
+        local usedIDs = {}
 
-        local clone = SaveSample:Clone()
-        local plotWorth = plot.plotWorth
-        if plotWorth then
-            plotWorth = "Worth " .. plotWorth .. "$"
+        for _, frame in pairs(SavesFrame:GetChildren()) do
+            if frame:IsA("ImageLabel") then frame:Destroy() end
         end
-
-        clone.LastUsed.Text = plot.lastUsed or "Never Used"
-        clone.SaveName.Text = plot.name or "Untitled"
-        clone.PlotWorth.Text = plotWorth or "N/A"
-        clone.Visible = true
-        clone.Parent = SavesFrame
-
-        table.insert(usedIDs, plot.id)
-
-        clone.LoadButton.MouseButton1Click:Connect(function()
-            Remotes.LocalEvents.SelectPlot:Fire(plot.name)
-            PlotSavesFrame:TweenPosition(UDim2.new(0.5, 0, 1.511, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quart, 0.5)
-        end)
-        clone.EditButton.MouseButton1Click:Connect(function()
-            TweenService:Create(DarkenFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.6}):Play()
-            EditPlotFrame.Visible = true
-            EditPlotFrame.NameBox.Text = plot.name
-
-            EditingPlot = plots[plot.id]
-        end)
+        if len(plotsTable) == 0 then
+            local plot = Remotes.PlotSelection.CreatePlot:InvokeServer("My Beautiful Home")
+            loadPlots()
+        end
         
-        clone.LoadButton.MouseEnter:Connect(function()
-            TweenService:Create(clone.LoadButton, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut), {ImageColor3 = Color3.fromRGB(200, 200, 200)}):Play()
-        end)
-        clone.LoadButton.MouseLeave:Connect(function()
-            TweenService:Create(clone.LoadButton, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-        end)
+        for _, plot in pairs(plotsTable) do
+            if usedIDs[plot.id] then continue end
 
-        clone.EditButton.MouseEnter:Connect(function()
-            TweenService:Create(clone.EditButton, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut), {ImageColor3 = Color3.fromRGB(200, 200, 200)}):Play()
-        end)
-        clone.EditButton.MouseLeave:Connect(function()
-            TweenService:Create(clone.EditButton, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-        end)
-    end
+            local clone = SaveSample:Clone()
+            local plotWorth = plot.plotWorth
+            if plotWorth then
+                plotWorth = "Worth " .. plotWorth .. "$"
+            end
+
+            clone.LastUsed.Text = plot.lastUsed or "Never Used"
+            clone.SaveName.Text = plot.name or "Untitled"
+            clone.PlotWorth.Text = plotWorth or "N/A"
+            clone.Visible = true
+            clone.Parent = SavesFrame
+
+            table.insert(usedIDs, plot.id)
+
+            clone.LoadButton.MouseButton1Click:Connect(function()
+                Remotes.LocalEvents.SelectPlot:Fire(plot.name)
+                PlotSavesFrame:TweenPosition(UDim2.new(0.5, 0, 1.511, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quart, 0.5)
+            end)
+            clone.EditButton.MouseButton1Click:Connect(function()
+                TweenService:Create(DarkenFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.6}):Play()
+                EditPlotFrame.Visible = true
+                EditPlotFrame.NameBox.Text = plot.name
+
+                EditingPlot = plotsTable[plot.id]
+            end)
+            
+            clone.LoadButton.MouseEnter:Connect(function()
+                TweenService:Create(clone.LoadButton, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut), {ImageColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+            end)
+            clone.LoadButton.MouseLeave:Connect(function()
+                TweenService:Create(clone.LoadButton, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+            end)
+
+            clone.EditButton.MouseEnter:Connect(function()
+                TweenService:Create(clone.EditButton, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut), {ImageColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+            end)
+            clone.EditButton.MouseLeave:Connect(function()
+                TweenService:Create(clone.EditButton, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+            end)
+        end
+    end)
 end
 
 local function playGame()
@@ -101,6 +105,7 @@ local function playGame()
     PlotSavesFrame.Size = UDim2.new(0.614, 0, 0.74, 0)
     PlotSavesFrame.Position = UDim2.new(0.5, 0, 1.511, 0)
     PlotSavesFrame:TweenPosition(UDim2.new(0.5, 0, 0.511, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quart, 0.5)
+    PlotSavesFrame.Size = UDim2.new(0.614, 0, 0.74, 0)
 
     task.wait(0.35)
     Buttons.Visible = false
@@ -108,6 +113,8 @@ local function playGame()
 end
 
 local function savePlotData(closeType)
+    local dataService = Knit.GetService("DataService")
+
     local name = EditPlotFrame.NameBox.Text
     local tween = TweenService:Create(DarkenFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {BackgroundTransparency = 1})
 
@@ -117,13 +124,14 @@ local function savePlotData(closeType)
         task.wait(2)
         EditPlotFrame.NameBox.Text = name
     elseif name ~= EditingPlot.name then
-        local success, data = Remotes.PlotSelection.EditPlot:InvokeServer(EditingPlot.id, {name=name})
-        if success == CustomEnums.PlotSelection.Success then
-            loadPlots()
-            EditingPlot = nil
-        end
-        tween:Play()
-        EditPlotFrame.Visible = false
+        dataService:EditPlot(EditingPlot.id, {name=name}):andThen(function(success: number, data: table)
+            if success == CustomEnums.PlotSelection.Success then
+                loadPlots()
+                EditingPlot = nil
+            end
+            tween:Play()
+            EditPlotFrame.Visible = false
+        end):catch(warn)
     elseif name == EditingPlot.name then
         tween:Play()
         EditPlotFrame.Visible = false

@@ -8,8 +8,6 @@ local PlotService = require(Modules.PlotService)
 local DataService = require(Modules.DataService)
 local CustomEnums = require(Modules.CustomEnums)
 
-PlotService.InitializePlots()
-
 Remotes.PlotSelection.RequestPlot.OnServerInvoke = function(player, plot, saveName)
 	local success, plot = PlotService.OwnPlot(player, plot, saveName)
 

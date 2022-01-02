@@ -7,7 +7,7 @@ local Players = game:GetService("Players")
 -- // MODULES \\ --
 
 local Modules = ReplicatedStorage:WaitForChild("Modules")
-local PlotService = require(Modules.PlotService)
+-- local PlotService = require(Modules.PlotService)
 local UIService = require(Modules.UIService)
 
 -- // VARIABLES \ --
@@ -103,7 +103,8 @@ function loadCategory(category)
         button.Parent = MainFrame.ItemsContent
         
 		button.MouseButton1Click:Connect(function()
-			local plot = PlotService.GetPlot(player)
+			-- local plot = PlotService.GetPlot(player)
+            local plot = "e"
 			if plot ~= nil then
 				Remotes.LocalEvents.BuildSystem:Fire("placeObject", item.Name, plot)
 			else

@@ -1,41 +1,60 @@
+-- // VARAIBLES \\ --
+
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Plots = workspace:WaitForChild("Plots")
+local Knit = require(ReplicatedStorage.Packages.Knit)
 
-local PlotService = {}
+-- // FUNCTIONS \\ --
 
-function PlotService.InitializePlots()
-	for _, plot in pairs(Plots:GetChildren()) do
-		plot:SetAttribute("Occupant", "None")
+local function getPlotWorth(plotData: table)
+	local worth = 0
+	for _, item in pairs(plotData.items) do
+		worth += item.Price
 	end
+	return worth
 end
 
-function PlotService.GetPlot(plr)
+-- // SERVICE \\ --
+
+local PlotService = Knit.CreateService {
+	Name = "PlotService",
+	Client = {},
+	_Plots = {},
+}
+
+function PlotService:GetOwnedPlot(player)
 	for _, plot in pairs(Plots:GetChildren()) do
-		if plot:GetAttribute("Occupant") == plr.Name then
+		if plot:GetAttribute("Occupant") == player.Name then
 			return plot
 		end
 	end
 	return nil
 end
 
-function PlotService.LeavePlot(plr)
-	local plot = PlotService.GetPlot(plr)
+function PlotService:LeavePlot(player)
+	local plot = PlotService:GetOwnedPlot(player)
 	if plot then
 		plot:SetAttribute("Occupant", "None")
 	end
 end
 
-function PlotService.OwnPlot(plr, plot, saveName)
+function PlotService.Client:OwnPlot(player: Player, plot: Part, saveName: string)
+	return self.Server:OwnPlot(player, plot, saveName)
+end
+
+function PlotService:OwnPlot(player, plot, saveName)
 	local DataService = require(ReplicatedStorage:WaitForChild("Modules").DataService)
-	local char = plr.Character or plr.CharacterAdded:Wait()
+	local char = player.Character or player.CharacterAdded:Wait()
 	
 	if not plot then return nil end
 	if not plot:IsA("BasePart") then return nil end
 	if plot:GetAttribute("Occupant") ~= "None" then return false end
 	
-	local loadedPlot = DataService.LoadPlot(plr, plot, saveName)
-	plot:SetAttribute("Occupant", plr.Name)
+	local loadedPlot = DataService.LoadPlot(player, plot, saveName)
+	plot:SetAttribute("Occupant", player.Name)
 
 	local cf = plot.PlotSpawn.CFrame
 	char.HumanoidRootPart.CFrame = CFrame.new(cf.Position + Vector3.new(0, 5, 0))
@@ -56,39 +75,24 @@ function PlotService.GetAvailablePlots()
 end
 
 
-function PlotService.EditPlot(player, plotName: string, instruction: string, value)
+function PlotService:EditPlot(player, plotID: string, instruction: string, value)
 	local DataService = require(ReplicatedStorage:WaitForChild("Modules").DataService)
-	local profile = DataService.GetProfile(player)
-	local plots = profile.Data["plots"]
-	if not plots then
-		profile.Data["plots"] = {}
-	end
+	
+	return DataService:EditPlot(player, plotID, instruction, value)
+end
 
-	local plotData = DataService.GetPlot(player, plotName)
-	if not plotData then
-		local plotID = HttpService:GenerateGUID(false)
-        profile.Data["plots"][plotID] = {
-            ["items"] = {},
-			["name"] = tostring(plotName),
-			["id"] = tostring(plotID),
-			["lastUsed"] = nil,
-        }
-	end
 
-	if instruction == "name" then
-		plotData = profile.Data["plots"][plotData.plotID]
-        profile.Data["plots"][plotData.id] = {
-            ["items"] = plotData.items,
-			["name"] = tostring(value),
-			["id"] = plotData.id,
-			["lastUsed"] = plotData.lastUsed,
-        }
-		plotData = nil
-	else
-		return false
-	end
+function PlotService:KnitStart()
+	print("PlotService Started")
+end
 
-	return true
+function PlotService:KnitInit()
+	for _, plot in pairs(Plots:GetChildren()) do
+		plot:SetAttribute("Occupant", "None")
+	end
+	Players.PlayerRemoving:Connect(function(player)
+		self:LeavePlot(player)
+	end)
 end
 
 return PlotService
