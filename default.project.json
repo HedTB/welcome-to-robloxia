@@ -1,0 +1,58 @@
+{
+  "name": "Welcome to Robloxia",
+  "tree": {
+    "$className": "DataModel",
+
+    "StarterPlayer":{
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/StarterPlayerScripts",
+        "$ignoreUnknownInstances": true
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/ServerScriptService"
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "Modules": {
+        "$className": "Folder",
+        "$path": "src/ReplicatedStorage/Modules",
+        "$ignoreUnknownInstances": true
+      }
+    },
+
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/ReplicatedFirst"
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$ignoreUnknownInstances": true,
+      "BuildingSystemGUI": {
+        "$className": "ScreenGui",
+        "$ignoreUnknownInstances": true,
+        "MainFrame": {
+          "$className": "ImageLabel",
+          "$path": "src/StarterGui/BuildingSystemGUI",
+          "$ignoreUnknownInstances": true
+        } 
+      },
+
+      "MenuGUI": {
+        "$className": "ScreenGui",
+        "$path": "src/StarterGui/MenuGUI",
+        "$ignoreUnknownInstances": true
+      }
+    }
+  }
+}
