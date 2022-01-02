@@ -13,6 +13,12 @@
       }
     },
 
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/ServerStorage"
+    },
+
     "ServerScriptService": {
       "$className": "ServerScriptService",
       "$ignoreUnknownInstances": true,
@@ -25,6 +31,11 @@
       "Modules": {
         "$className": "Folder",
         "$path": "src/ReplicatedStorage/Modules",
+        "$ignoreUnknownInstances": true
+      },
+      "Packages": {
+        "$className": "Folder",
+        "$path": "Packages",
         "$ignoreUnknownInstances": true
       }
     },
