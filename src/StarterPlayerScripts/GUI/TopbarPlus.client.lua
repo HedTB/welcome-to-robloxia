@@ -13,8 +13,8 @@ local player = Players.LocalPlayer
 
 -- // MODULEs \\ --
 
+local Knit = require(ReplicatedStorage.Packages.Knit)
 local TopbarPlus = require(Modules.Icon)
--- local PlotService = require(Modules.PlotService)
 local UIService = require(Modules.UIService)
 local InteractionService = require(Modules.InteractionService)
 
@@ -93,9 +93,9 @@ task.spawn(function()
 	end
 end)
 
---[[
 ViewPlotButton:bindEvent("selected", function()
-	local plot = PlotService.GetPlot(player)
+	local PlotService = Knit.GetService("PlotService")
+	local plot = PlotService:GetOwnedPlot(player)
 	if plot ~= nil then
 		Remotes.LocalEvents.OrbitPlot:Fire("start", plot)
 	else
@@ -106,7 +106,8 @@ ViewPlotButton:bindEvent("selected", function()
 end)
 ViewPlotButton:bindEvent("deselected", function()
 	ViewPlotButton:lock()
-	local plot = PlotService.GetPlot(player)
+	local PlotService = Knit.GetService("PlotService")
+	local plot = PlotService:GetOwnedPlot(player)
 	if plot ~= nil then
 		Remotes.LocalEvents.OrbitPlot:Fire("stop", plot)
 	end
@@ -115,7 +116,8 @@ ViewPlotButton:bindEvent("deselected", function()
 end)
 
 BuildModeButton:bindEvent("selected", function()
-	local plot = PlotService.GetPlot(player)
+	local PlotService = Knit.GetService("PlotService")
+	local plot = PlotService:GetOwnedPlot(player)
 	if plot ~= nil then
 		Remotes.LocalEvents.BuildSystem:Fire("open", nil, plot)
 	else
@@ -125,7 +127,8 @@ BuildModeButton:bindEvent("selected", function()
 	end
 end)
 BuildModeButton:bindEvent("deselected", function()
-	local plot = PlotService.GetPlot(player)
+	local PlotService = Knit.GetService("PlotService")
+	local plot = PlotService:GetOwnedPlot(player)
 	BuildModeButton:lock()
 	if plot ~= nil then
 		Remotes.LocalEvents.BuildSystem:Fire("close", nil, plot)
@@ -133,4 +136,3 @@ BuildModeButton:bindEvent("deselected", function()
 	task.wait(1)
 	BuildModeButton:unlock()
 end)
-]]

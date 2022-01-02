@@ -1,10 +1,11 @@
+local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 
-local PlotService = require(Modules.PlotService)
-local DataService = require(Modules.DataService)
+local PlotService = require(ServerStorage.Services.PlotService)
+local DataService = require(ServerStorage.Services.DataService)
 local CustomEnums = require(Modules.CustomEnums)
 
 local Items = ReplicatedStorage:WaitForChild("Items")

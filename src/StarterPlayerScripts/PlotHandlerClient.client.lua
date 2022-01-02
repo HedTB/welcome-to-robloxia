@@ -53,9 +53,10 @@ local function startPlotSelect(plotName)
 
 	local plotService = Knit.GetService("PlotService")
 	local connections = {}
-	local plotsTable = plotService.Client:GetAvailablePlots():doneReturn(function(...)
-		return ...
-	end)
+	local plotsTable
+	plotService:GetAvailablePlots():andThen(function(...)
+		plotsTable = ...
+	end):await()
 	local index = 1
 
 	Frame.Select.Text = "Select Plot"
@@ -83,7 +84,7 @@ local function startPlotSelect(plotName)
 			camTween(plotsTable[index])
 		end)
 		connections[#connections+1] = Select.MouseButton1Click:Connect(function()
-			local result = Remotes.PlotSelection.RequestPlot:InvokeServer(plotsTable[index], plotName)
+			local result = plotService:OwnPlot(plotsTable[index], plotName)
 
 			if result == CustomEnums.PlotSelection.Invalid then
 				UIService:Error("Invalid plot")

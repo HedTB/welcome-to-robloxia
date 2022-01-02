@@ -34,6 +34,15 @@ function PlotService:GetOwnedPlot(player)
 	return nil
 end
 
+function PlotService.Client:GetOwnedPlot(player)
+	for _, plot in pairs(Plots:GetChildren()) do
+		if plot:GetAttribute("Occupant") == player.Name then
+			return plot
+		end
+	end
+	return nil
+end
+
 function PlotService:LeavePlot(player)
 	local plot = PlotService:GetOwnedPlot(player)
 	if plot then
@@ -41,19 +50,18 @@ function PlotService:LeavePlot(player)
 	end
 end
 
-function PlotService.Client:OwnPlot(player: Player, plot: Part, saveName: string)
-	return self.Server:OwnPlot(player, plot, saveName)
+function PlotService.Client:LeavePlot(player)
+	self.Server:LeavePlot(player)
 end
 
 function PlotService:OwnPlot(player, plot, saveName)
-	local DataService = require(ReplicatedStorage:WaitForChild("Modules").DataService)
+	local DataService = Knit.GetService("DataService")
 	local char = player.Character or player.CharacterAdded:Wait()
 	
-	if not plot then return nil end
-	if not plot:IsA("BasePart") then return nil end
+	if not plot or not plot:IsA("BasePart") then return nil end
 	if plot:GetAttribute("Occupant") ~= "None" then return false end
 	
-	local loadedPlot = DataService.LoadPlot(player, plot, saveName)
+	local loadedPlot = DataService:LoadPlot(player, plot, saveName)
 	plot:SetAttribute("Occupant", player.Name)
 
 	local cf = plot.PlotSpawn.CFrame
@@ -62,7 +70,11 @@ function PlotService:OwnPlot(player, plot, saveName)
 	return true, loadedPlot
 end
 
-function PlotService.GetAvailablePlots()
+function PlotService.Client:OwnPlot(player: Player, plot: Part, saveName: string)
+	return self.Server:OwnPlot(player, plot, saveName)
+end
+
+function PlotService:GetAvailablePlots()
 	local availablePlots = {}
 
 	for i, plot in pairs(Plots:GetChildren()) do
@@ -72,6 +84,10 @@ function PlotService.GetAvailablePlots()
 	end
 
 	return availablePlots
+end
+
+function PlotService.Client:GetAvailablePlots()
+	return self.Server:GetAvailablePlots()
 end
 
 

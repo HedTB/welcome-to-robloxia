@@ -2,10 +2,11 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 local HttpService = game:GetService("HttpService")
 
-local ProfileService = require(script.Parent:WaitForChild("ProfileService"))
-local CustomEnums = require(script.Parent:WaitForChild("CustomEnums"))
+local ProfileService = require(ServerStorage:WaitForChild("Modules").ProfileService)
+local CustomEnums = require(ReplicatedStorage:WaitForChild("Modules").CustomEnums)
 
 -- // VARIABLES \\ --
 
@@ -98,7 +99,7 @@ function DataService:LoadPlot(player, selectedPlot: BasePart, plotName: string)
 		profile.Data["plots"] = {}
 	end
 	
-	local plotData = DataService.GetPlot(player, plotName)
+	local plotData = DataService:GetPlot(player, plotName)
     if not plotData then
 		local plotID = HttpService:GenerateGUID(false)
         profile.Data["plots"][plotID] = {
@@ -136,14 +137,23 @@ function DataService:LoadPlot(player, selectedPlot: BasePart, plotName: string)
 	return plotData
 end
 
+function DataService.Client:LoadPlot(player, selectedPlot: BasePart, plotName: string)
+	return self.Server:LoadPlot(player, selectedPlot, plotName)
+end
+
 function DataService:CreatePlot(player, name: string)
 	local profile = self._Profiles[player]
-	if not profile.Data["plots"] then
+	local plots = profile.Data["plots"]
+	if not plots then return end
+	
+	if #plots == 7 then return CustomEnums.PlotSelection.MaxPlots end
+
+	if not plots then
 		profile.Data["plots"] = {}
 	end
 
 	local plotID = HttpService:GenerateGUID(false)
-	profile.Data["plots"][plotID] = {
+	plots[plotID] = {
 		["items"] = {},
 		["name"] = tostring(name),
 		["lastUsed"] = nil,
@@ -152,6 +162,10 @@ function DataService:CreatePlot(player, name: string)
 	}
 
 	return profile.Data["plots"][plotID]
+end
+
+function DataService.Client:CreatePlot(player, name: string)
+	return self.Server:CreatePlot(player, name)
 end
 
 function DataService:SaveItem(player, item: Model, selectedPlot: BasePart, plotID: string)
@@ -185,7 +199,7 @@ function DataService:SaveItem(player, item: Model, selectedPlot: BasePart, plotI
 end
 
 function DataService:EditPlot(player, plotID: string, data: table)
-	local profile = DataService.GetProfile(player)
+	local profile = DataService:GetProfile(player)
 	local plots = profile.Data["plots"]
 	if not plots then
 		profile.Data["plots"] = {}
@@ -258,6 +272,8 @@ function DataService:KnitInit()
 			profile:Release()
 		end
 	end)
+
+	print("DataService Initialized")
 end
 
 return DataService

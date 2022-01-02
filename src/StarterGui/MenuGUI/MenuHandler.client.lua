@@ -50,7 +50,7 @@ local function loadPlots()
             if frame:IsA("ImageLabel") then frame:Destroy() end
         end
         if len(plotsTable) == 0 then
-            local plot = Remotes.PlotSelection.CreatePlot:InvokeServer("My Beautiful Home")
+            dataService:CreatePlot("My Beautiful Home")
             loadPlots()
         end
         
